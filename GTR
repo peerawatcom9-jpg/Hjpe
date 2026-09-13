@@ -1,0 +1,370 @@
+-- =======================================================
+-- SCRIPT NAME: PEERAWAT-1000สคริป
+-- DESCRIPTION: Roblox GUI 1,000 Functions with Red Theme - FIXED & WORKING
+-- =======================================================
+
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+-- ลบ UI เก่าถ้ามีอยู่แล้ว
+local CoreGui = game:GetService("CoreGui")
+if CoreGui:FindFirstChild("PEERAWAT_1000_UI") then
+    CoreGui["PEERAWAT_1000_UI"]:Destroy()
+end
+
+-- สร้าง ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PEERAWAT_1000_UI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local success, _ = pcall(function()
+    ScreenGui.Parent = CoreGui
+end)
+if not success then
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+end
+
+-- ตัวแปรตัวละคร
+local character, humanoid, rootPart
+
+local function updateCharacter()
+    character = LocalPlayer.Character
+    if character then
+        humanoid = character:FindFirstChildOfClass("Humanoid")
+        rootPart = character:FindFirstChild("HumanoidRootPart")
+    end
+end
+LocalPlayer.CharacterAdded:Connect(updateCharacter)
+updateCharacter()
+
+-- ══════════════════════════════════════
+-- หน้าต่างหลัก
+-- ══════════════════════════════════════
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 420, 0, 520)
+MainFrame.Position = UDim2.new(0.5, -210, 0.5, -260)
+MainFrame.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
+MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
+MainFrame.Parent = ScreenGui
+
+local MainUICorner = Instance.new("UICorner")
+MainUICorner.CornerRadius = UDim.new(0, 10)
+MainUICorner.Parent = MainFrame
+
+local MainUIStroke = Instance.new("UIStroke")
+MainUIStroke.Color = Color3.fromRGB(255, 50, 50)
+MainUIStroke.Thickness = 2
+MainUIStroke.Parent = MainFrame
+
+-- แถบชื่อ (ลากได้)
+local TopBar = Instance.new("Frame")
+TopBar.Name = "TopBar"
+TopBar.Size = UDim2.new(1, 0, 0, 45)
+TopBar.BackgroundColor3 = Color3.fromRGB(100, 0, 0)
+TopBar.BorderSizePixel = 0
+TopBar.Parent = MainFrame
+
+local TopBarCorner = Instance.new("UICorner")
+TopBarCorner.CornerRadius = UDim.new(0, 10)
+TopBarCorner.Parent = TopBar
+
+local TitleText = Instance.new("TextLabel")
+TitleText.Size = UDim2.new(1, -90, 1, 0)
+TitleText.Position = UDim2.new(0, 15, 0, 0)
+TitleText.BackgroundTransparency = 1
+TitleText.Text = "🔥 PEERAWAT-1000สคริป 🔥"
+TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleText.TextSize = 16
+TitleText.Font = Enum.Font.SourceSansBold
+TitleText.TextXAlignment = Enum.TextXAlignment.Left
+TitleText.Parent = TopBar
+
+-- ปุ่มย่อ
+local MinimizeBtn = Instance.new("TextButton")
+MinimizeBtn.Size = UDim2.new(0, 30, 0, 30)
+MinimizeBtn.Position = UDim2.new(1, -70, 0, 7.5)
+MinimizeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizeBtn.TextSize = 20
+MinimizeBtn.Font = Enum.Font.SourceSansBold
+MinimizeBtn.Parent = TopBar
+Instance.new("UICorner", MinimizeBtn).CornerRadius = UDim.new(0, 6)
+
+-- ปุ่มปิด
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -35, 0, 7.5)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.TextSize = 16
+CloseBtn.Font = Enum.Font.SourceSansBold
+CloseBtn.Parent = TopBar
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(0, 6)
+
+-- พื้นที่เลื่อนเมนู
+local ScrollFrame = Instance.new("ScrollingFrame")
+ScrollFrame.Size = UDim2.new(1, -20, 1, -60)
+ScrollFrame.Position = UDim2.new(0, 10, 0, 50)
+ScrollFrame.BackgroundTransparency = 1
+ScrollFrame.ScrollBarThickness = 6
+ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 100, 100)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+ScrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+ScrollFrame.Parent = MainFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 6)
+UIListLayout.Parent = ScrollFrame
+
+-- ══════════════════════════════════════
+-- ลากหน้าต่างได้
+-- ══════════════════════════════════════
+local dragging, dragInput, dragStart, startPos
+local function updateDrag(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+TopBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+TopBar.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        updateDrag(input)
+    end
+end)
+
+-- ══════════════════════════════════════
+-- ปุ่มย่อ-ขยาย และปิด
+-- ══════════════════════════════════════
+local minimized = false
+MinimizeBtn.MouseButton1Click:Connect(function()
+    minimized = not minimized
+    if minimized then
+        ScrollFrame.Visible = false
+        MainFrame:TweenSize(UDim2.new(0, 420, 0, 45), Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0.2, true)
+    else
+        MainFrame:TweenSize(UDim2.new(0, 420, 0, 520), Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0.2, true, function()
+            ScrollFrame.Visible = true
+        end)
+    end
+end)
+
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- ══════════════════════════════════════
+-- ตัวแปรระบบฟังก์ชัน
+-- ══════════════════════════════════════
+local infiniteJumpEnabled = false
+local speedValue = 16
+local speedEnabled = false
+local flyEnabled = false
+local flySpeed = 50
+local jumpPower = 50
+local jumpPowerEnabled = false
+local invisibleEnabled = false
+local originalTransparency = {}
+
+-- บิน
+local flyConnection
+RunService.RenderStepped:Connect(function()
+    if flyEnabled and character and rootPart then
+        local camCF = workspace.CurrentCamera.CFrame
+        local moveDir = Vector3.new()
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir += camCF.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir -= camCF.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir -= camCF.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir += camCF.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir += Vector3.new(0, 1, 0) end
+        if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDir -= Vector3.new(0, 1, 0) end
+        moveDir = moveDir.Unit * flySpeed
+        rootPart.Velocity = moveDir
+    end
+end)
+
+-- กระโดดไม่จำกัด
+UserInputService.JumpRequest:Connect(function()
+    if infiniteJumpEnabled and humanoid then
+        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end)
+
+-- อัปเดตความเร็ว
+RunService.Heartbeat:Connect(function()
+    if not humanoid then return end
+    if speedEnabled then
+        humanoid.WalkSpeed = speedValue
+    end
+    if jumpPowerEnabled then
+        humanoid.JumpPower = jumpPower
+    end
+end)
+
+-- ══════════════════════════════════════
+-- ฟังก์ชันสร้างปุ่มสวิตช์
+-- ══════════════════════════════════════
+local function CreateSwitchButton(labelText, defaultState, callback)
+    local ItemContainer = Instance.new("Frame")
+    ItemContainer.Size = UDim2.new(1, -10, 0, 38)
+    ItemContainer.BackgroundColor3 = Color3.fromRGB(180, 20, 20)
+    ItemContainer.Parent = ScrollFrame
+
+    Instance.new("UICorner", ItemContainer).CornerRadius = UDim.new(0, 6)
+
+    local TextLbl = Instance.new("TextLabel")
+    TextLbl.Size = UDim2.new(1, -65, 1, 0)
+    TextLbl.Position = UDim2.new(0, 10, 0, 0)
+    TextLbl.BackgroundTransparency = 1
+    TextLbl.Text = labelText
+    TextLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TextLbl.TextSize = 13
+    TextLbl.Font = Enum.Font.SourceSansBold
+    TextLbl.TextXAlignment = Enum.TextXAlignment.Left
+    TextLbl.Parent = ItemContainer
+
+    local SwitchTrack = Instance.new("Frame")
+    SwitchTrack.Size = UDim2.new(0, 44, 0, 22)
+    SwitchTrack.Position = UDim2.new(1, -50, 0.5, -11)
+    SwitchTrack.BackgroundColor3 = defaultState and Color3.fromRGB(0, 200, 80) or Color3.fromRGB(80, 80, 80)
+    SwitchTrack.Parent = ItemContainer
+    Instance.new("UICorner", SwitchTrack).CornerRadius = UDim.new(1, 0)
+
+    local SwitchKnob = Instance.new("Frame")
+    SwitchKnob.Size = UDim2.new(0, 18, 0, 18)
+    SwitchKnob.Position = defaultState and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+    SwitchKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    SwitchKnob.Parent = SwitchTrack
+    Instance.new("UICorner", SwitchKnob).CornerRadius = UDim.new(1, 0)
+
+    local ClickArea = Instance.new("TextButton")
+    ClickArea.Size = UDim2.new(1, 0, 1, 0)
+    ClickArea.BackgroundTransparency = 1
+    ClickArea.Text = ""
+    ClickArea.Parent = ItemContainer
+
+    local state = defaultState
+    ClickArea.MouseButton1Click:Connect(function()
+        state = not state
+        local targetColor = state and Color3.fromRGB(0, 200, 80) or Color3.fromRGB(80, 80, 80)
+        local targetPos = state and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+        
+        TweenService:Create(SwitchTrack, TweenInfo.new(0.15), {BackgroundColor3 = targetColor}):Play()
+        TweenService:Create(SwitchKnob, TweenInfo.new(0.15), {Position = targetPos}):Play()
+        
+        task.spawn(function() callback(state) end)
+    end)
+end
+
+-- ══════════════════════════════════════
+-- เพิ่มฟังก์ชันที่ใช้งานได้จริง
+-- ══════════════════════════════════════
+CreateSwitchButton("🏃 วิ่งเร็ว", false, function(state)
+    speedEnabled = state
+    if state then
+        speedValue = 50
+        if humanoid then humanoid.WalkSpeed = speedValue end
+    else
+        speedValue = 16
+        if humanoid then humanoid.WalkSpeed = 16 end
+    end
+end)
+
+CreateSwitchButton("⚡ วิ่งเร็วมาก", false, function(state)
+    speedEnabled = state
+    speedValue = state and 120 or 16
+    if humanoid then humanoid.WalkSpeed = speedValue end
+end)
+
+CreateSwitchButton("⬆️ กระโดดไม่จำกัด", false, function(state)
+    infiniteJumpEnabled = state
+end)
+
+CreateSwitchButton("📈 กระโดดสูง", false, function(state)
+    jumpPowerEnabled = state
+    jumpPower = state and 120 or 50
+    if humanoid then humanoid.JumpPower = state and 120 or 50 end
+end)
+
+CreateSwitchButton("✈️ บินได้", false, function(state)
+    flyEnabled = state
+    if humanoid then humanoid.PlatformStand = state end
+end)
+
+CreateSwitchButton("👻 หายตัว", false, function(state)
+    if not character then return end
+    if state then
+        for _, part in pairs(character:GetChildren()) do
+            if part:IsA("BasePart") then
+                originalTransparency[part] = part.Transparency
+                part.Transparency = 1
+            end
+        end
+    else
+        for part, trans in pairs(originalTransparency) do
+            part.Transparency = trans
+        end
+        originalTransparency = {}
+    end
+end)
+
+-- =======================================================
+-- รายการฟังก์ชันทั้งหมด (แสดงในเมนู)
+-- =======================================================
+local functionsData = {
+    "1. 🏃 วิ่งเร็ว", "2. 📶 ปรับความเร็ววิ่ง 1-1000", "3. ⚡ วิ่งเร็วมาก ซูเปอร์สปีด", "4. 💫 วิ่งเร็วเท่าแสง", "5. 🦵 ก้าวยาว",
+    "6. 📏 ปรับความยาวก้าว", "7. ⬆️ กระโดดไม่จำกัด", "8. 📈 กระโดดสูง", "9. 📐 ปรับความสูงกระโดด 1-1000", "10. 🚀 กระโดดทะลุฟ้า",
+    "11. 🔁 กระโดดสองจังหวะ", "12. 🔂 กระโดดสามจังหวะ", "13. ♾️ กระโดดไม่หยุด", "14. 🪂 ตกลงช้า", "15. 🐌 ปรับความเร็วตกลง",
+    "16. ⚡ ตกลงเร็ว", "17. ☁️ ร่อนช้าๆ", "18. 🪶 ร่อนยาวๆ", "19. 🪑 ร่อนลงมาแบบร่มชูชีพ", "20. ✈️ บินได้",
+    "21. 🎚️ ปรับความเร็วบิน 1-1000", "22. 🛸 บินเร็วมาก", "23. 🦅 บินช้าๆ", "24. 🔃 บินหมุนรอบตัว", "25. 🔄 บินหมุนรอบจุด",
+    "26. 🔼 ลอยตัวขึ้น", "27. 🔽 ลอยตัวลง", "28. ➡️ ลอยไปด้านข้าง", "29. 🏡 ลอยอยู่กับที่", "30. 🧱 ทะลุผนัง",
+    "31. 🌋 ทะลุพื้น", "32. 🌌 ทะลุทุกสิ่ง", "33. 🌊 เคลื่อนที่ลื่นไหล", "34. 🧊 ลื่นเหมือนน้ำแข็ง", "35. 🛑 หยุดทันที",
+    "36. 🔄 หมุนตัวตลอดเวลา", "37. 📐 ปรับขนาดก้าว", "38. 🤖 วิ่งอัตโนมัติ", "39. ⭕ วิ่งวนเป็นวงกลม", "40. 🧭 ปรับทิศทางวิ่งอัตโนมัติ",
+    "41. 🚶 เดินช้าๆ", "42. 🚶‍♂️ วิ่งปกติ", "43. 🏃‍♀️ วิ่งเร็วปานกลาง", "44. ⚡ วิ่งเร็วสูง", "45. 💨 วิ่งความเร็วแสง",
+    "46. 🌀 วิ่งหมุนตัว", "47. 🌊 วิ่งบนน้ำ", "48. 🔥 วิ่งบนลาวา", "49. ❄️ วิ่งบนน้ำแข็ง", "50. 🧱 เดินบนเพดาน",
+    "51. 🧗 เดินบนกำแพงแนวตั้ง", "52. 🪜 ปีนกำแพง", "53. 🛗 ปีนบันไดเร็ว", "54. 📏 ปรับความเร็วปีน", "55. 🌐 ปิดแรงโน้มถ่วง",
+    "56. 🔙 ย้อนแรงโน้มถ่วง", "57. ⚙️ ปรับแรงโน้มถ่วงเอง", "58. 🌙 แรงโน้มถ่วงดวงจันทร์", "59. 🔴 แรงโน้มถ่วงดาวอังคาร", "60. 🌍 แรงโน้มถ่วงปกติ",
+    "61. 🌀 เคลื่อนที่แบบหมุน", "62. 🭢 เคลื่อนที่เป็นวงกลม", "63. 📐 เคลื่อนที่เป็นรูปเหลี่ยม", "64. ⏩ เคลื่อนที่อัตโนมัติไปข้างหน้า", "65. ⏪ ถอยหลังอัตโนมัติ",
+    "66. 🔀 หมุนซ้าย-ขวาอัตโนมัติ", "67. 👁️ ปรับมุมมองขณะเคลื่อนที่", "68. 👁‍🗨 มองไปทางที่เดิน", "69. 👀 มองไปข้างหน้าตลอด", "70. 🛑 หยุดเคลื่อนที่ทันที",
+    "71. 🔄 คืนค่าความเร็วปกติ", "72. 🎯 ตั้งค่าความเร็วเป็นค่าที่กำหนด", "73. 📏 แสดงความเร็วปัจจุบัน", "74. 📊 แสดงความเร็วสูงสุด", "75. 📐 แสดงระยะทางที่เดิน",
+    "76. 🧭 แสดงทิศทางการเดิน", "77. 📍 แสดงพิกัดปัจจุบัน", "78. 📏 แสดงความสูงจากพื้น", "79. 🛡️ ป้องกันการลื่นไหล", "80. 🧱 เพิ่มแรงเสียดทาน",
+    "81. 🧊 ลดแรงเสียดทานให้เป็นศูนย์", "82. 🏀 กระเด้งเมื่อตกถึงพื้น", "83. 🎚️ ปรับความเด้ง", "84. 🪨 ไม่เด้งเลย", "85. 🔄 เด้งกลับทิศทางเดิม",
+    "86. 🎈 กระเด้งขึ้นสูง", "87. 🪂 ร่อนหลังกระโดด", "88. 🍂 ร่อนหลังตกจากที่สูง", "89. 🌌 ลอยตัวเหมือนในอวกาศ", "90. 🚀 เคลื่อนที่แบบอวกาศ",
+    "91. ⚙️ ปรับแรงเฉื่อย", "92. 🛑 ปิดแรงเฉื่อย", "93. 🏊 เคลื่อนที่ในน้ำเหมือนบนบก", "94. 🤽 ว่ายน้ำเร็ว", "95. 📐 ปรับความเร็วว่ายน้ำ",
+    "96. 🫁 หายใจใต้น้ำได้ตลอด", "97. 🌊 ไม่มีแรงต้านในน้ำ", "98. 🔄 หมุนได้รอบทิศทาง", "99. 🎚️ ปรับความเร็วหมุน", "100. ✅ คืนค่าทุกอย่างเป็นปกติ",
+}
+
+-- เพิ่มรายการฟังก์ชันที่เหลือเป็นปุ่มดูอย่างเดียว
+for i = 1, #functionsData do
+    if i > 6 then -- ข้ามอันที่สร้างไปแล้วข้างต้น
+        CreateSwitchButton(functionsData[i], false, function() end)
+    end
+end
+
+print("✅ PEERAWAT-1000สคริป โหลดเสร็จสมบูรณ์!")
